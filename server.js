@@ -30,9 +30,9 @@ const routes = {
     'PUT': downvoteArticle
   },
   '/comments': {
-    'POST': getOrCreateComment
+    'POST': createComment
   },
-  '/comments/id:': {
+  '/comments/:id': {
     'PUT': updateComment,
     'DELETE': deleteComment
   },
@@ -43,6 +43,49 @@ const routes = {
     'PUT': downvoteComment
   }
 };
+
+function createComment(url, request) {
+  const requestComment = request.body && request.body.comment;
+  const response = {};
+  // console.log('>>>> comment', requestComment);
+  // console.log('>>>> body.comment', request.body.comment);
+  
+  if (!( requestComment
+      && requestComment.body
+      && database.users[requestComment.username]
+      && database.articles[requestComment.articleId])) {
+  console.log('>>>> exit' );        
+        response.status = 400;
+        return response;
+      }
+
+      const comment = {
+        id:       database.nextCommentId++,
+        body:     requestComment.body,
+        username: requestComment.username,
+        articleId: requestComment.articleId,
+        upvotedBy: [],
+        downvotedBy: [] 
+      };
+  // console.log('>>>> save ', comment);
+      
+
+      database.comments[comment.id] = comment;
+      database.users[comment.username].commentIds.push(comment.id);
+      database.articles[requestComment.articleId].commentIds.push(comment.id);
+
+      response.body = {comment};
+      response.status = 201;      
+      return response; 
+}
+
+function updateComment() {}
+
+function deleteComment() {}
+
+function upvoteComment() {}
+
+function downvoteComment() {}
 
 function getUser(url, request) {
   const username = url.split('/').filter(segment => segment)[1];
@@ -260,7 +303,7 @@ function downvote(item, username) {
 const http = require('http');
 const url = require('url');
 
-const port = process.env.PORT || 4000;
+const port = process.env.PORT || 5000;
 const isTestMode = process.env.IS_TEST_MODE;
 
 const requestHandler = (request, response) => {
