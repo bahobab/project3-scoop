@@ -47,14 +47,11 @@ const routes = {
 function createComment(url, request) {
   const requestComment = request.body && request.body.comment;
   const response = {};
-  // console.log('>>>> comment', requestComment);
-  // console.log('>>>> body.comment', request.body.comment);
   
   if (!( requestComment
       && requestComment.body
       && database.users[requestComment.username]
       && database.articles[requestComment.articleId])) {
-  console.log('>>>> exit' );        
         response.status = 400;
         return response;
       }
@@ -67,8 +64,6 @@ function createComment(url, request) {
         upvotedBy: [],
         downvotedBy: [] 
       };
-  // console.log('>>>> save ', comment);
-      
 
       database.comments[comment.id] = comment;
       database.users[comment.username].commentIds.push(comment.id);
@@ -79,7 +74,30 @@ function createComment(url, request) {
       return response; 
 }
 
-function updateComment() {}
+function updateComment(url, request) {
+  const response = {};
+  const urlArr = url.split('/');
+  const id = urlArr[2];
+  const oldComment = database.comments[id];
+
+  if (!(oldComment)) {
+    response.status = 404;
+    return response;
+  }
+  
+  if (!(request.body && request.body.comment)) {
+    response.status = 400;
+    return response;
+  }
+
+  if (request.body.comment.body === '') return;
+  // should come after previous test becuse of the broad validation used
+
+  oldComment.body = request.body.comment.body;
+  response.body = request.body.comment;
+  response.status = 200;
+  return response;
+}
 
 function deleteComment() {}
 
