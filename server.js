@@ -135,6 +135,7 @@ function upvoteComment(url, request) {
   //   response.status = 400;
   //   return response;
   // }
+  
   if ((!(id && database.comments[id] && database.users[userName]))) {
     response.status = 400;
     return response;
@@ -142,10 +143,6 @@ function upvoteComment(url, request) {
 
   const upvoteDb = database.comments[id].upvotedBy;
   const downvoteDb = database.comments[id].downvotedBy;
-
-  // console.log('user name >>>>', userName);
-  // console.log('upvoteBy >>>>', upvoteDb);
-  // console.log('downvotedBy >>>>', downvoteDb);
 
   if ( upvoteDb.indexOf(userName) !== -1 ) { // no multiple vote
     return;
