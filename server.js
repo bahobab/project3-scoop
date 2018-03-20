@@ -99,7 +99,31 @@ function updateComment(url, request) {
   return response;
 }
 
-function deleteComment() {}
+function deleteComment(url) {
+  const response = {};
+  const urlArr = url.split('/');
+  const id = urlArr[2];
+  const comment = database.comments[id];
+
+  if (!(id && comment)) {
+    response.status = 404;
+    return response;
+  }
+
+  if (database.comments[id]) {
+    deleteFromArray(database.users[comment.username].commentIds, id);
+    deleteFromArray(database.articles[comment.articleId].commentIds, id);
+
+    // delete database.comments[id];
+    database.comments[id] = null;
+    response.status = 204;
+    return response;
+  }
+  
+  function deleteFromArray(arr, id) {
+    arr.splice(arr.indexOf(+id), 1);
+  } 
+}
 
 function upvoteComment() {}
 
@@ -107,7 +131,7 @@ function downvoteComment() {}
 
 function getUser(url, request) {
   const username = url.split('/').filter(segment => segment)[1];
-  const user = database.users[username];
+  const user = database.users;
   const response = {};
 
   if (user) {
