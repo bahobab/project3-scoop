@@ -125,9 +125,86 @@ function deleteComment(url) {
   } 
 }
 
-function upvoteComment() {}
+function upvoteComment(url, request) {
+  const response = {};
+  const urlArr = url.split('/');
+  const id = urlArr[2];
+  const userName = request.body.username;
 
-function downvoteComment() {}
+  // if (request.body === null) {
+  //   response.status = 400;
+  //   return response;
+  // }
+  if ((!(id && database.comments[id] && database.users[userName]))) {
+    response.status = 400;
+    return response;
+  }
+
+  const upvoteDb = database.comments[id].upvotedBy;
+  const downvoteDb = database.comments[id].downvotedBy;
+
+  // console.log('user name >>>>', userName);
+  // console.log('upvoteBy >>>>', upvoteDb);
+  // console.log('downvotedBy >>>>', downvoteDb);
+
+  if ( upvoteDb.indexOf(userName) !== -1 ) { // no multiple vote
+    return;
+  }
+
+  if ( downvoteDb.indexOf(userName) !== -1) {
+    // remove user id from that array
+    deleteFromArray(downvoteDb, userName);
+  }
+
+  upvoteDb.push(userName);
+  response.status = 200;
+  response.body = {comment: database.comments[id]};
+  return response;
+
+  function deleteFromArray(arr, id) {
+    arr.splice(arr.indexOf(id), 1);
+  }
+}
+
+function downvoteComment(url, request) {
+  const response = {};
+  const urlArr = url.split('/');
+  const id = urlArr[2];
+  const userName = request.body.username;
+
+  // console.log('>>>>> ', arguments)
+  // if (request.body === {}) {
+  //   response.status = 400;
+  //   return response;
+  // }
+
+  if ((!(id && database.comments[id] && database.users[userName]))) {
+    response.status = 400;
+    return response;
+  }
+
+  const upvoteDb = database.comments[id].upvotedBy;
+  const downvoteDb = database.comments[id].downvotedBy;
+
+  if ( downvoteDb.indexOf(userName) !== -1 ) { // no multiple vote
+    return;
+  }
+
+  if ( upvoteDb.indexOf(userName) !== -1) {
+    // remove user id from that array
+    deleteFromArray(upvoteDb, userName);
+  }
+
+  downvoteDb.push(userName);
+  response.status = 200;
+  response.body = {comment: database.comments[id]};
+  return response;
+
+  function deleteFromArray(arr, id) {
+    arr.splice(arr.indexOf(id), 1);
+  }
+}
+// ---------------------------------------
 
 function getUser(url, request) {
   const username = url.split('/').filter(segment => segment)[1];
