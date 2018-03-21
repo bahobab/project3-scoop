@@ -1,3 +1,18 @@
+// helper functions
+const deleteFromArray = function(numOfElements) {
+  return function(arr, startElement) {
+      try {
+          arr.splice(arr.indexOf(startElement), numOfElements);
+          return true;
+      } catch (error)
+      {
+          return error;
+      }
+  }
+}
+
+const deleteOneElement = deleteFromArray(1);
+
 // database is let instead of const to allow us to modify it in test.js
 let database = {
   users: {},
@@ -111,17 +126,13 @@ function deleteComment(url) {
   }
 
   if (database.comments[id]) {
-    deleteFromArray(database.users[comment.username].commentIds, id);
-    deleteFromArray(database.articles[comment.articleId].commentIds, id);
+    deleteOneElement(database.users[comment.username].commentIds, +id);
+    deleteOneElement(database.articles[comment.articleId].commentIds, +id);
 
     // delete database.comments[id];
     database.comments[id] = null;
     response.status = 204;
     return response;
-  }
-  
-  function deleteFromArray(arr, id) {
-    arr.splice(arr.indexOf(+id), 1);
   } 
 }
 
@@ -142,26 +153,22 @@ function upvoteComment(url, request) {
     return response;
   }
 
-  const upvoteDb = database.comments[id].upvotedBy;
-  const downvoteDb = database.comments[id].downvotedBy;
+  const upvoteArr = database.comments[id].upvotedBy;
+  const downvoteArr = database.comments[id].downvotedBy;
 
-  if ( upvoteDb.indexOf(userName) !== -1 ) { // no multiple vote
+  if ( upvoteArr.indexOf(userName) !== -1 ) {
     return;
   }
 
-  if ( downvoteDb.indexOf(userName) !== -1) {
-    // remove user id from that array
-    deleteFromArray(downvoteDb, userName);
+  if ( downvoteArr.indexOf(userName) !== -1) {
+
+    deleteOneElement(downvoteArr, userName);
   }
 
-  upvoteDb.push(userName);
+  upvoteArr.push(userName);
   response.status = 200;
   response.body = {comment: database.comments[id]};
   return response;
-
-  function deleteFromArray(arr, id) {
-    arr.splice(arr.indexOf(id), 1);
-  }
 }
 
 function downvoteComment(url, request) {
@@ -181,26 +188,21 @@ function downvoteComment(url, request) {
     return response;
   }
 
-  const upvoteDb = database.comments[id].upvotedBy;
-  const downvoteDb = database.comments[id].downvotedBy;
+  const upvoteArr = database.comments[id].upvotedBy;
+  const downvoteArr = database.comments[id].downvotedBy;
 
-  if ( downvoteDb.indexOf(userName) !== -1 ) { // no multiple vote
+  if ( downvoteArr.indexOf(userName) !== -1 ) { // no multiple vote
     return;
   }
 
-  if ( upvoteDb.indexOf(userName) !== -1) {
-    // remove user id from that array
-    deleteFromArray(upvoteDb, userName);
+  if ( upvoteArr.indexOf(userName) !== -1) {
+    deleteOneElement(upvoteArr, userName);
   }
 
-  downvoteDb.push(userName);
+  downvoteArr.push(userName);
   response.status = 200;
   response.body = {comment: database.comments[id]};
   return response;
-
-  function deleteFromArray(arr, id) {
-    arr.splice(arr.indexOf(id), 1);
-  }
 }
 // ---------------------------------------
 
