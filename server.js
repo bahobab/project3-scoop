@@ -127,14 +127,15 @@ function deleteComment(url) {
 
 function upvoteComment(url, request) {
   const response = {};
+
+  if (request.body === undefined) {
+    response.status = 400;
+    return response;
+  }
+
   const urlArr = url.split('/');
   const id = urlArr[2];
   const userName = request.body.username;
-
-  // if (request.body === null) {
-  //   response.status = 400;
-  //   return response;
-  // }
   
   if ((!(id && database.comments[id] && database.users[userName]))) {
     response.status = 400;
@@ -165,15 +166,15 @@ function upvoteComment(url, request) {
 
 function downvoteComment(url, request) {
   const response = {};
+
+  if (request.body === undefined) {
+    response.status = 400;
+    return response;
+  }
+
   const urlArr = url.split('/');
   const id = urlArr[2];
   const userName = request.body.username;
-
-  // console.log('>>>>> ', arguments)
-  // if (request.body === {}) {
-  //   response.status = 400;
-  //   return response;
-  // }
 
   if ((!(id && database.comments[id] && database.users[userName]))) {
     response.status = 400;
@@ -419,7 +420,7 @@ function downvote(item, username) {
 const http = require('http');
 const url = require('url');
 
-const port = process.env.PORT || 5000;
+const port = process.env.PORT || 4000;
 const isTestMode = process.env.IS_TEST_MODE;
 
 const requestHandler = (request, response) => {
